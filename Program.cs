@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RaceDay.API.Data;
 using RaceDay.API.Services;
+using Azure.Storage.Blobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<TokenService>();
+var blobConnection = builder.Configuration["AzureBlobStorage:ConnectionString"];
+if (!string.IsNullOrWhiteSpace(blobConnection)) builder.Services.AddSingleton(new BlobServiceClient(blobConnection));
 
 var app = builder.Build();
 
@@ -43,8 +46,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseDefaultFiles();
-app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

@@ -1,0 +1,19 @@
+services:
+  raceday-api:
+    build: ./RaceDay.API
+    ports: ["8081:8080"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__RaceDayConnection: "Server=host.docker.internal;Database=RaceDayDB;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;"
+      Jwt__Key: "${JWT_KEY:-ChangeThisDevelopmentKeyToASecretAtLeast32Chars}"
+      Jwt__Issuer: "RaceDay.API"
+      Jwt__Audience: "RaceDay.Client"
+      AzureBlobStorage__ConnectionString: "${AZURE_BLOB_CONNECTION:-}"
+      AzureBlobStorage__ContainerName: "raceday-images"
+  raceday-mvc:
+    build: ./RaceDay.MVC
+    ports: ["8080:8080"]
+    environment:
+      ApiSettings__BaseUrl: "http://raceday-api:8080/"
+      ASPNETCORE_ENVIRONMENT: Development
+    depends_on: [raceday-api]
